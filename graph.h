@@ -22,8 +22,6 @@ bool is_edge(const graph_t *graph, int u, int v);
 bool is_vertex(const graph_t *graph, int u);
 bool add_vertex(const graph_t *graph, int u);
 bool add_edge(const graph_t *graph, int u, int v, int w);
-set_t* list_of_edges(const graph_t *graph);
-set_t* list_of_edges_adj(const graph_t* graph, int u);
 edge_t *edge_array(const graph_t *graph, size_t *capacity);
 edge_t *edge_array_adj(const graph_t *graph, int u, size_t *capacity);
 int *dijkstra(const graph_t *graph, int u, size_t *capacity);

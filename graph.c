@@ -32,8 +32,10 @@ graph_t *init_graph(char *filename) {
         return nullptr;
     }
     graph->adj_list = create_list();
+    size_t line_num = 1;
 
     while (fgets(buf, 100, file) != nullptr) {
+        buf[strcspn(buf, "\r\n")] = '\0';
         constexpr char delim[] = " \t";
         char bufcpy[100];
         strcpy(bufcpy, buf);
@@ -57,24 +59,27 @@ graph_t *init_graph(char *filename) {
                     weight = strtol(token, &end, 10);
                     break;
                 default:
-                    printf("Invalid line: %s", buf);
+                    printf("Invalid line #%lld: '%s'\n", line_num, buf);
                     return nullptr;
+            }
+            if (end == token) {
+                printf("Invalid digit on line #%lld: '%s'\n", line_num, token);
+                return nullptr;
             }
             ++narg;
             token = strtok(nullptr, delim);
         }
         if (narg == 3) {
-
             if (is_edge(graph, from, to)) {
-                printf("Duplicate edge: [%d->%d, w:%d]", from, to, weight);
+                printf("Duplicate edge on line #%lld: [%d->%d, w:%d]\n", line_num, from, to, weight);
                 return nullptr;
             }
             if (from == to) {
-                printf("Loop edge: [%d->%d, w:%d]", from, to, weight);
+                printf("Loop edge on line #%lld: [%d->%d, w:%d]\n", line_num, from, to, weight);
                 return nullptr;
             }
             if (weight <= 0) {
-                printf("Negative weight: [%d->%d, w:%d]", from, to, weight);
+                printf("Non-positive weight on line #%lld: [%d->%d, w:%d]\n", line_num, from, to, weight);
                 return nullptr;
             }
 
@@ -86,6 +91,10 @@ graph_t *init_graph(char *filename) {
                 printf("add reverse edge %d->%d\n", to, from);
                 add_edge(graph, to, from, weight);
             }
+            ++line_num;
+        } else {
+            printf("Invalid line #%lld: '%s'\n", line_num, buf);
+            return nullptr;
         }
     }
 
@@ -141,7 +150,7 @@ bool is_edge(const graph_t *graph, const int u, const int v) {
         return false;
     }
     const set_t *u_set = find_set(graph->adj_list, u);
-    const edge_t *e = find_edge(u_set, u);
+    const edge_t *e = find_edge(u_set, v);
 
     return e != nullptr;
 }
@@ -153,25 +162,6 @@ bool add_vertex(const graph_t *graph, const int u) {
     add_set(graph->adj_list, u);
     return true;
 }
-
-
-set_t *list_of_edges(const graph_t *graph) {
-    set_t *edges = create_set(0);
-
-    const node_t *cur_node = graph->adj_list->head;
-    while (cur_node != nullptr) {
-        const set_t *cur_set = cur_node->set->next;
-        if (cur_set != nullptr) edges->edge.from = cur_set->edge.from;
-        while (cur_set != nullptr) {
-            insert(edges, cur_set->edge.to, cur_set->edge.weight);
-            cur_set = cur_set->next;
-        }
-        cur_node = cur_node->next;
-    }
-
-    return edges;
-}
-
 
 edge_t *edge_array(const graph_t *graph, size_t *capacity) {
     size_t size = 0;
@@ -197,24 +187,6 @@ edge_t *edge_array(const graph_t *graph, size_t *capacity) {
 
     return edges;
 }
-
-
-set_t *list_of_edges_adj(const graph_t *graph, const int u) {
-    if (!is_vertex(graph, u)) {
-        return nullptr;
-    }
-
-    set_t *edges = create_set(0);
-    const set_t *u_set = find_set(graph->adj_list, u)->next;
-    if (u_set != nullptr) edges->edge.from = u_set->edge.from;
-    while (u_set != nullptr) {
-        insert(edges, u_set->edge.to, u_set->edge.weight);
-        u_set = u_set->next;
-    }
-
-    return edges->next;
-}
-
 
 edge_t *edge_array_adj(const graph_t *graph, const int u, size_t *capacity) {
     if (!is_vertex(graph, u)) {
