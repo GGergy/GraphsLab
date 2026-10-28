@@ -3,8 +3,8 @@ project(GraphsLab C)
 
 set(CMAKE_C_STANDARD 23)
 
-add_executable(GraphsLab main.c
-        graph.h
+add_executable(GraphsLab
+        main.c
         graph.c
-        set.h
-        forward_list.h)
+        set.c
+        forward_list.c)
