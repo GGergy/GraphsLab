@@ -21,6 +21,7 @@ typedef struct set {
 set_t *create_set(int name);
 void destroy_set(set_t *set);
 bool insert(set_t *set, int to, int weight);
+bool _insrt(set_t *set, int from, int to, int weight);
 edge_t *find_edge(const set_t *set, int to);
 bool delete(set_t *set, int to);
 size_t set_size(const set_t *set);

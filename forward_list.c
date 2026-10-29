@@ -68,6 +68,7 @@ inline bool delete_set(list_t *list, const int set_name) {
     if (parent->set->edge.from == set_name) {
         list->size--;
         list->head = parent->next;
+        destroy_set(parent->set);
         free(parent);
         return 0;
     }
@@ -91,7 +92,7 @@ inline void print_sets_names(const list_t *list) {
 
     putchar('[');
     if (list->head) {
-        putchar(list->head->set->edge.from);
+        printf("%d", list->head->set->edge.from);
         const node_t *cur = list->head->next;
         while (cur != nullptr) {
             printf(", %d", cur->set->edge.from);
