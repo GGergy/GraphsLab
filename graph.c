@@ -208,3 +208,20 @@ edge_t *edge_array_adj(const graph_t *graph, const int u, size_t *capacity) {
 
     return edges;
 }
+
+
+size_t *dijkstra(const graph_t *graph, const int u, size_t *capacity) {
+    const size_t size = graph_size(graph);
+    size_t *dist = malloc(size * sizeof(size_t));
+
+    for (int i = 0; i < size; ++i) {
+        if (i == u) {
+            dist[i] = 0;
+        }
+        else {
+            dist[i] = ULLONG_MAX;
+        }
+    }
+
+    return dist;
+}

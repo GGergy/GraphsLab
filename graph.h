@@ -24,7 +24,7 @@ bool add_vertex(const graph_t *graph, int u);
 bool add_edge(const graph_t *graph, int u, int v, int w);
 edge_t *edge_array(const graph_t *graph, size_t *capacity);
 edge_t *edge_array_adj(const graph_t *graph, int u, size_t *capacity);
-int *dijkstra(const graph_t *graph, int u, size_t *capacity);
+size_t *dijkstra(const graph_t *graph, int u, size_t *capacity);
 graph_t *kruskal(const graph_t *graph);
 
 

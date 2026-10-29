@@ -93,11 +93,11 @@ edge_t *find_edge(const set_t *set, const int to) {
     return nullptr;
 }
 
-int set_size(const set_t *set) {
+size_t set_size(const set_t *set) {
     // Размер множества
 
     const set_t *cur = set->next;
-    int size = 0;
+    size_t size = 0;
     while (cur != nullptr) {
         size++;
         cur = cur->next;

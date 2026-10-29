@@ -23,7 +23,7 @@ void destroy_set(set_t *set);
 bool insert(set_t *set, int to, int weight);
 edge_t *find_edge(const set_t *set, int to);
 bool delete(set_t *set, int to);
-int set_size(const set_t *set);
+size_t set_size(const set_t *set);
 void print_set(const set_t *set);
 
 #endif
