@@ -59,38 +59,13 @@ bool insert(set_t *set, const int to, const int weight) {
 }
 
 
-bool _insrt(set_t *set, const int from, const int to, const int weight) {
-
-    set_t *parent = set;
-    while (parent->next != nullptr) {
-        if (parent->next->edge.to == to && parent->next->edge.from == from) {
-            return false;
-        }
-        if (parent->next->edge.to > to) {
-            break;
-        }
-        parent = parent->next;
-    }
-    set_t *node = malloc(sizeof(set_t));
-    node->next = parent->next;
-    parent->next = node;
-
-    set->edge.weight++;
-    node->edge.from = from;
-    node->edge.to = to;
-    node->edge.weight = weight;
-
-    return true;
-}
-
-
 bool delete(set_t *set, const int to) {
     // Поиск и удаление элемента со значением val из множества set
     // return true - успешно, return false - элемента нет в этом множестве
 
     set_t *parent = set;
     while (parent->next != nullptr) {
-        if (parent->next->edge.to > to) return -1;
+        if (parent->next->edge.to > to) return false;
         if (parent->next->edge.to == to) {
             set_t *tmp = parent->next->next;
             free(parent->next);

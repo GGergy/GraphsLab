@@ -43,7 +43,8 @@ dist_t *dijkstra(const graph_t *graph, int u, size_t *capacity);
 path_t *dijkstra_path(const graph_t *graph, int u, int v);
 graph_t *kruskal(const graph_t *graph);
 void print_graph_conns(const graph_t *graph);
-void print_strong_conn(const graph_t *graph);
+void print_strong_conns(const graph_t *graph);
+void tarjan(const graph_t *graph);
 
 
 #endif //GRAPHSLAB_GRAPH_H

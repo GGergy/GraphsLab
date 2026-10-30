@@ -354,6 +354,7 @@ path_t *dijkstra_path(const graph_t *graph, const int u, const int v) {
     size_t *dist = malloc(size * sizeof(size_t));
     bool *worked = calloc(size, sizeof(bool));
     int *names = malloc(size * sizeof(int));
+    // Из какой вершины дошли в i-ю
     size_t *prev = malloc(size * sizeof(size_t));
 
     {
@@ -413,6 +414,7 @@ path_t *dijkstra_path(const graph_t *graph, const int u, const int v) {
     response->length = 0;
     response->total_dist = dist[target_idx];
 
+    // Восстановление пути
     if (dist[target_idx] != ULLONG_MAX) {
         int *temp_path = malloc(size * sizeof(int));
         size_t path_len = 0;
@@ -461,17 +463,18 @@ int edge_comp(const void *a, const void *b) {
 
 graph_t *kruskal(const graph_t *graph) {
     size_t capacity = 0;
-    edge_t *edges = edge_array(graph, &capacity);
     graph_t *tree = malloc(sizeof (graph_t));
     tree->direct = graph->direct;
     tree->adj_list = create_list();
-
-    qsort(edges, capacity, sizeof(edge_t), edge_comp);
 
     const size_t size = graph_size(graph);
     if (size == 0) {
         return tree;
     }
+
+    edge_t *edges = edge_array(graph, &capacity);
+    qsort(edges, capacity, sizeof(edge_t), edge_comp);
+
 
     int *names = malloc(size * sizeof(int));
 
@@ -627,7 +630,104 @@ void print_graph_conns(const graph_t *graph) {
 }
 
 
-void print_strong_conn(const graph_t *graph) {
+void tarjan(const graph_t *graph) {
+    const size_t size = graph_size(graph);
+    if (size == 0) {
+        return;
+    }
+
+    int *names = malloc(size * sizeof(int));
+    {
+        size_t k = 0;
+        const node_t *cur_node = graph->adj_list->head;
+        while (cur_node != nullptr) {
+            const set_t *cur_set = cur_node->set;
+            names[k] = cur_set->edge.from;
+            cur_node = cur_node->next;
+            ++k;
+        }
+    }
+    // Стек DFS
+    size_t *stack = malloc((size + 1) * sizeof(size_t));
+    bool *visited = calloc(size, sizeof(bool));
+    // Порядок выхода
+    size_t *exit = malloc(size * sizeof(size_t));
+    size_t timer = 0;
+    size_t stack_size = 0;
+
+    // Инвертированный DFS
+    for (size_t i = 0; i < size; ++i) {
+        if (visited[i]) continue;
+        visited[i] = true;
+        stack[0] = i;
+        stack_size = 1;
+
+        while (stack_size != 0) {
+            bool done = true;
+            const size_t cur = stack[stack_size - 1];
+            for (size_t j = 0; j < size; ++j) {
+                // Ребро проверяется инвертированное
+                if (!visited[j] && is_edge(graph, names[j], names[cur])) {
+                    done = false;
+                    visited[j] = true;
+                    stack[stack_size] = j;
+                    ++stack_size;
+                    break;
+                }
+            }
+            if (done) {
+                --stack_size;
+                exit[timer] = cur;
+                ++timer;
+            }
+        }
+    }
+
+    // Сброс отметок
+    memset(visited, false, size * sizeof(bool));
+
+    size_t comp_num = 0;
+    // Прямой DFS в обратном порядке выхода
+    for (size_t i = size; i > 0; --i) {
+        const size_t start = exit[i - 1];
+        if (visited[start]) continue;
+
+        visited[start] = true;
+        stack[0] = start;
+        stack_size = 1;
+        comp_num++;
+        printf("Component #%lld: %d", comp_num, names[start]);
+
+        while (stack_size != 0) {
+            bool done = true;
+            const size_t cur = stack[stack_size - 1];
+            for (size_t j = 0; j < size; ++j) {
+                // Ребро проверяется обычное
+                if (!visited[j] && is_edge(graph, names[cur], names[j])) {
+                    done = false;
+                    visited[j] = true;
+                    stack[stack_size] = j;
+                    ++stack_size;
+                    printf(", %d", names[j]);
+                    break;
+                }
+            }
+            if (done) {
+                --stack_size;
+            }
+        }
+        printf("\n");
+    }
+
+
+    free(exit);
+    free(visited);
+    free(stack);
+    free(names);
+}
+
+
+void print_strong_conns(const graph_t *graph) {
     const size_t size = graph_size(graph);
     if (size == 0) {
         return;
@@ -645,9 +745,13 @@ void print_strong_conn(const graph_t *graph) {
         }
     }
 
+    // Время первого обнаружения вершины (значение таймера)
     size_t *disc = malloc(size * sizeof(size_t));
+    // Самая ранняя вершина, до которой можно добраться из i-й
     size_t *low = malloc(size * sizeof(size_t));
+    // Флаги нахождения вершин в стеке
     bool *in_stack = calloc(size, sizeof(bool));
+    // Стек накопления вершин текущей компоненты
     size_t *scc_stack = malloc(size * sizeof(size_t));
     size_t scc_top = 0;
 

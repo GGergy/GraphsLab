@@ -62,7 +62,9 @@ int main(void) {
         } else if (strcmp(tok1, "read") == 0 && narg == 2) {
             if (graph != nullptr) free_graph(graph);
 
-            graph = read_graph(tok2);
+            char path[105] = "../";
+            strcat(path, tok2);
+            graph = read_graph(path);
             if (graph != nullptr) {
                 printf("Successfully read graph from %s\n", tok2);
             }
@@ -137,8 +139,9 @@ int main(void) {
                 print_graph_conns(graph);
                 if (graph->direct) {
                     printf("Strong connectivity:\n");
-                    print_strong_conn(graph);
+                    tarjan(graph);
                 }
+                printf("--------------------------\n");
             }
         } else if (strcmp(tok1, "tree") == 0 && narg == 1) {
             if (graph == nullptr) {
@@ -156,11 +159,12 @@ int main(void) {
                 }
                 printf("Total: [%d]\n", weight);
                 free(edges);
-                free(tree);
+                free_graph(tree);
             }
         } else if (strcmp(tok1, "vertex") == 0 && narg == 1) {
             if (graph == nullptr) {
                 printf("Graph not created!\n");
+                continue;
             }
             print_sets_names(graph->adj_list);
             putchar('\n');
@@ -186,6 +190,7 @@ int main(void) {
                 const int vertex = strtol(tok2, &end, 10);
                 if (end == tok2) {
                     printf("Invalid vertex num\n");
+                    continue;
                 }
                 edge_t *edges = edge_array_adj(graph, vertex, &capacity);
                 printf("Edges adjusted to <%d>: ", vertex);
@@ -210,6 +215,7 @@ int main(void) {
                 const int vertex = strtol(tok2, &end, 10);
                 if (end == tok2) {
                     printf("Invalid vertex num\n");
+                    continue;
                 }
                 dist_t *dists = dijkstra(graph, vertex, &capacity);
                 if (dists == nullptr) {
@@ -232,8 +238,7 @@ int main(void) {
                 const int to = strtol(tok3, &e2, 10);
                 if (e1 == tok2 || e2 == tok3) {
                     printf("Invalid digit\n");
-                } else if (graph == nullptr) {
-                    printf("Graph not created!\n");
+                    continue;
                 }
                 path_t *path = dijkstra_path(graph, from, to);
                 if (path == nullptr) {
@@ -248,6 +253,8 @@ int main(void) {
                     free(path->path);
                     free(path);
                 }
+            } else if (strcmp(tok1, "exit") == 0 && narg == 1) {
+                break;
             } else {
                 printf("Invalid input!\n");
             }
@@ -256,5 +263,5 @@ int main(void) {
         }
     }
 
-    free_graph(graph);
+    if (graph != nullptr) free_graph(graph);
 }

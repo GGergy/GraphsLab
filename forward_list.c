@@ -61,7 +61,7 @@ inline set_t *find_set(const list_t *list, const int set_name) {
 
 inline bool delete_set(list_t *list, const int set_name) {
     // Удаление ноды с головой множества по имени set_name
-    // return 0 - успешно, return -1 - не найдено
+    // return true - успешно, return false - не найдено
 
     node_t *parent = list->head;
     if (parent == nullptr) return false;
@@ -70,7 +70,7 @@ inline bool delete_set(list_t *list, const int set_name) {
         list->head = parent->next;
         destroy_set(parent->set);
         free(parent);
-        return 0;
+        return true;
     }
     while (parent->next != nullptr) {
         if (parent->next->set->edge.from == set_name) {
